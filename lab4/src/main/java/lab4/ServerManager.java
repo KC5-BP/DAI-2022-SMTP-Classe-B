@@ -38,29 +38,82 @@ public class ServerManager {
             throw new Exception("Output stream is null");
     }
 
+    /**
+     * Send only CRLF to the server
+     */
     public void send() throws Exception {
         this.out.write("\r\n");
         this.out.flush();
     }
 
+    /**
+     * Send message (String) to the server
+     * @throws message can not be null
+     */
     public void send(String message) throws Exception {
-        if (message == null || message.isEmpty())
-            throw new Exception("Message cannot be null or empty");
+        if (message == null)
+            throw new Exception("Message cannot be null");
+
+        if (message.isEmpty()) {
+            this.send();
+            return;
+        }
 
         this.out.write(message + "\r\n");
         this.out.flush();
     }
 
-    public String receive() throws Exception {
+    /**
+     * Send message (String Array) to the server
+     * @throws message can not be null
+     */
+    public void send(String[] message) throws Exception {
+        for (String line : message)
+            this.send(line);
+    }
 
+    /**
+     * Receive a message from the server
+     * @return Server's response as String
+     */
+    public String receive() throws Exception {
         String message = this.in.readLine();
-        while (message == null || message.isEmpty()) {
+        while (message == null || message.isEmpty())
             message = this.in.readLine();
-        }
 
         return message;
     }
 
+    /**
+     * Receive <n> message from the server
+     * @return Server's response as String
+     */
+    public String receive(int n) throws Exception {
+        StringBuilder message = new StringBuilder();
+
+        for (int i = 0; i < n; i++)
+            message.append(this.receive()).append("\r\n");
+
+        return message.toString();
+    }
+
+    /**
+     * Receive HELP result from the server
+     * @return HELP's response as String
+     */
+    public String receiveHelp(String endOfHelp) throws Exception {
+        StringBuilder message = new StringBuilder();
+        String line = this.in.readLine();
+        while ( !line.equals(endOfHelp) ) {
+            message.append(line).append("\r\n");
+            line = this.in.readLine();
+        }
+        return message.toString();
+    }
+
+    /**
+     * Close the socket, its input and output streams
+     */
     public void close() throws Exception {
         this.in.close();
         this.out.close();

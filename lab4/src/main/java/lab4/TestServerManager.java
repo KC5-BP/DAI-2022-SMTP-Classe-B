@@ -18,10 +18,14 @@ public class TestServerManager {
         String[] recipients = {
                 "gne@gmail.com"
         };
-        String msgBody = "Hey!" + CRLF + "Listen!";
+        String[] msgBody = { "Hey!", "Listen!" };
         try {
             ServerManager server = new ServerManager(IP, SMTP_PORT);
             System.out.println("S: " + server.receive());
+
+            server.send("HELP");
+            System.out.println("S: " + server.receiveHelp("214 End of HELP info"));
+            System.out.println("--------------------");
 
             for (int i = 0; i < msgFormat.length; i++) {
                 switch (i) {
