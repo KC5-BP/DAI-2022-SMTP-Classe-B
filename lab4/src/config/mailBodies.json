@@ -1,0 +1,20 @@
+[
+  {
+    "mailBody": {
+      "subject": "Ceci est un sujet :)",
+      "body": "Ceci est le coprs du message :)"
+    }
+  },
+  {
+    "mailBody": {
+      "subject": "Ceci est un sujet :(",
+      "body": "Ceci est le coprs du message :("
+    }
+  },
+  {
+    "mailBody": {
+      "subject": "Ceci est un sujet :0",
+      "body": "Ceci est le coprs du message :0"
+    }
+  }
+]

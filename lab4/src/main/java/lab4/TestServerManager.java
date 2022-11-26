@@ -43,7 +43,7 @@ public class TestServerManager {
 
                         server.send("Subject: Test");
                         server.send();
-                        server.send(msgBody);
+                        server.send(msgBody); // TODO Encoder (voire donnée->constraints)
                         server.send(".");
                         break;
                     default:

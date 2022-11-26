@@ -48,7 +48,7 @@ public class ServerManager {
 
     /**
      * Send message (String) to the server
-     * @throws message can not be null
+     * @throws Exception message can not be null
      */
     public void send(String message) throws Exception {
         if (message == null)
@@ -65,7 +65,7 @@ public class ServerManager {
 
     /**
      * Send message (String Array) to the server
-     * @throws message can not be null
+     * @throws Exception message can not be null
      */
     public void send(String[] message) throws Exception {
         for (String line : message)
