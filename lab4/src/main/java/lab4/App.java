@@ -3,8 +3,9 @@ package lab4;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
-import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
+import java.nio.charset.Charset;
+import java.util.Arrays;    // TODO Might not be needed
+
 
 public class App {
     /* Config. files: */
@@ -13,27 +14,73 @@ public class App {
     private static final String MAILING_LIST_FILE = "./lab4/src/config/mailList.json";
 
     /* Contents of the previous config. files: */
-    private static int PORT_SMTP;
-    private static String IP;
+    private static int SMTP_PORT;
+    private static String IP, ENCODING;
     private static String[] MAILS;
     private static String[] MSG_SUBJECTS;
     private static String[] MSG_BODIES;
 
+    /* Socket to MockMockServer (using ServerManager created class) */
+    private static ServerManager SERVER;
+
     public static void main(String[] args) {
-        /* Read Server's configs and take the one for MockMockServer (@ [0]) */
+        String[] msgFormat = {
+                "HELO Dump",
+                "MAIL FROM:<%s>",
+                "RCPT TO:<%s>",
+                "DATA",
+                "QUIT"
+        };
+
+        /* Read config. files: */
+        readConfigFiles();
+
+        /* Start MockMockServer */
+        createConnectServer();
+
+
+        try {
+            Group g = new Group(5);
+            String realSender = g.getRealSender();
+            String fakeSender = g.getFakeSender();
+            String[] victims = g.getVictims();
+
+            System.out.println("Real sender = " + realSender);
+            System.out.println("Fake sender = " + fakeSender);
+            System.out.println("Victims = " + Arrays.toString(victims));
+        } catch (RuntimeException e) {
+            e.printStackTrace();
+        }
+
+        /* Closing connection to MockMockServer properly */
+        try {
+            SERVER.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     *
+     */
+    private static void readConfigFiles() {
+        /* --- Import server config. --- */
         try {
             System.out.println("Reading Server's configs...");
             JSONArray serverCfgsRead = JSONManager.readFromFile(SERVER_CFG_FILE);
+
+            /* Take first index for MockMockServer */
             JSONObject serverCfg = JSONManager.parseAs((JSONObject) serverCfgsRead.get(0), "config");
 
-            PORT_SMTP = Integer.parseInt(serverCfg.get("portSMTP").toString());
+            SMTP_PORT = Integer.parseInt(serverCfg.get("portSMTP").toString());
             IP = (String) serverCfg.get("ip");
+            ENCODING = (String) serverCfg.get("encoding");
         } catch (Exception e) {
             System.out.println("Error  : Failed to read/extract server's config from file");
             System.out.println("Details: " + e);
         }
 
-        /* Import mailing list */
+        /* --- Import mailing list --- */
         try {
             System.out.println("Reading mailing list...");
             JSONArray mailsRead = JSONManager.readFromFile(MAILING_LIST_FILE);
@@ -49,7 +96,7 @@ public class App {
             System.out.println("Details: " + e);
         }
 
-        /* Import message bodies */
+        /* --- Import message bodies --- */
         try {
             System.out.println("Reading message bodies...");
             JSONArray msgBodiesRead = JSONManager.readFromFile(MSG_BODIES_FILE);
@@ -66,28 +113,24 @@ public class App {
             System.out.println("Error  : Failed to read/extract mails' bodies from file");
             System.out.println("Details: " + e);
         }
+    }
 
-        /* Start MockMockServer */
+    /**
+     *
+     */
+    private static void createConnectServer() {
         System.out.println("Creating & Connecting to MockMockServer...");
         try {
-            ServerManager serverManager = new ServerManager(IP, PORT_SMTP, StandardCharsets.UTF_8);
+            SERVER = new ServerManager(IP, SMTP_PORT, Charset.forName(ENCODING));
+            System.out.println("S: " + SERVER.receive());
+
+            SERVER.send("HELP");
+            System.out.println("S: " + SERVER.receiveHelp("214 End of HELP info"));
+            System.out.println("--------------------");
+
         } catch (Exception e) {
             System.out.println("Error  : Failed to create/connect to MockMockServer");
             System.out.println("Details: " + e);
-        }
-
-
-        try {
-            Group g = new Group(5);
-            String realSender = g.getRealSender();
-            String fakeSender = g.getFakeSender();
-            String[] victims = g.getVictims();
-
-            System.out.println("Real sender = " + realSender);
-            System.out.println("Fake sender = " + fakeSender);
-            System.out.println("Victims = " + Arrays.toString(victims));
-        } catch (RuntimeException e) {
-            e.printStackTrace();
         }
     }
 }
