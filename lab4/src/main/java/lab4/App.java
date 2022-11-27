@@ -5,12 +5,13 @@ import org.json.simple.JSONObject;
 
 import java.nio.charset.Charset;
 import java.util.Arrays;    // TODO Might not be needed
+import java.util.Random;
 
 
 public class App {
     /* Config. files: */
-    private static final String SERVER_CFG_FILE   = "./lab4/src/config/configServer.json";
-    private static final String MSG_BODIES_FILE   = "./lab4/src/config/mailBodies.json";
+    private static final String SERVER_CFG_FILE = "./lab4/src/config/configServer.json";
+    private static final String MSG_BODIES_FILE = "./lab4/src/config/mailBodies.json";
     private static final String MAILING_LIST_FILE = "./lab4/src/config/mailList.json";
 
     /* Contents of the previous config. files: */
@@ -31,24 +32,67 @@ public class App {
                 "DATA",
                 "QUIT"
         };
+        /* Random index, used for: Group size, Subject, Mail Bodies */
+        Random randomIndex = new Random();
 
         /* Read config. files: */
         readConfigFiles();
 
+        /* Create group of victims */
+        //Group group = new Group(MAILS.length, MAILS);
+        Group group = new Group(randomIndex.nextInt(MAILS.length));
+        String realSender = group.getRealSender();
+        String fakeSender = group.getFakeSender();
+        String[] recipients = group.getVictims();
+
         /* Start MockMockServer */
         createConnectServer();
 
+        try {   /* Send msg corresponding to SMTP format */
+            for (int i = 0; i < msgFormat.length; i++) {
+                switch (i) {
+                    case 1: /* MAIL FROM */
+                        SERVER.send(String.format(msgFormat[i], realSender));
+                        break;
+                    case 2: /* RCPT TO */
+                        for (String recipient : recipients)
+                            SERVER.send(String.format(msgFormat[i], recipient));
+                        break;
+                    case 3: /* DATA */
+                        SERVER.send(msgFormat[i]);
+                        System.out.println("S: " + SERVER.receive());
 
-        try {
-            Group g = new Group(5);
-            String realSender = g.getRealSender();
-            String fakeSender = g.getFakeSender();
-            String[] victims = g.getVictims();
+                        /* Mail header */
+                        /* From: */
+                        SERVER.send("From: " + fakeSender);
 
-            System.out.println("Real sender = " + realSender);
-            System.out.println("Fake sender = " + fakeSender);
-            System.out.println("Victims = " + Arrays.toString(victims));
-        } catch (RuntimeException e) {
+                        /* To: (for each victims) */
+                        StringBuilder listVictims = new StringBuilder();
+                        listVictims.append("To: ");
+                        for (int j = 0; j < recipients.length; j++) {
+                            listVictims.append(recipients[j]);
+
+                            if (j + 1 != recipients.length)
+                                listVictims.append(recipients[j]).append(", ");
+                        }
+                        SERVER.send(listVictims.toString());
+
+                        /* Subject: */
+                        SERVER.send("Subject: " + MSG_SUBJECTS[randomIndex.nextInt(MSG_SUBJECTS.length)]);
+                        // Empty line needed to be clean between header and body
+                        SERVER.send();
+
+                        /* Body (actual message) */
+                        SERVER.send(MSG_BODIES[randomIndex.nextInt(MSG_BODIES.length)]);
+                        SERVER.send(".");
+                        break;
+                    default:
+                        SERVER.send(msgFormat[i]);
+                        break;
+                }
+                System.out.println("S: " + SERVER.receive());
+            }
+        } catch (Exception e) { // TODO gestion des exeptions?
             e.printStackTrace();
         }
 
@@ -102,11 +146,11 @@ public class App {
             JSONArray msgBodiesRead = JSONManager.readFromFile(MSG_BODIES_FILE);
             System.out.println(msgBodiesRead.size() + " message bodies at disposal");
 
-            MSG_BODIES   = new String[msgBodiesRead.size()];
+            MSG_BODIES = new String[msgBodiesRead.size()];
             MSG_SUBJECTS = new String[msgBodiesRead.size()];
             for (int i = 0; i < msgBodiesRead.size(); i++) {
                 JSONObject jsonObj = JSONManager.parseAs((JSONObject) msgBodiesRead.get(i), "mailBody");
-                MSG_BODIES[i]   = (String) jsonObj.get("body");
+                MSG_BODIES[i] = (String) jsonObj.get("body");
                 MSG_SUBJECTS[i] = (String) jsonObj.get("subject");
             }
         } catch (Exception e) {
@@ -127,7 +171,6 @@ public class App {
             SERVER.send("HELP");
             System.out.println("S: " + SERVER.receiveHelp("214 End of HELP info"));
             System.out.println("--------------------");
-
         } catch (Exception e) {
             System.out.println("Error  : Failed to create/connect to MockMockServer");
             System.out.println("Details: " + e);
