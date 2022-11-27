@@ -9,7 +9,7 @@ import org.json.simple.parser.ParseException;
 
 public class JSONManager {
 
-    public JSONArray readFromFile(String filename) {
+    public static JSONArray readFromFile(String filename) {
         JSONParser jsonParser = new JSONParser();
         JSONArray jsonArray = null;
 
