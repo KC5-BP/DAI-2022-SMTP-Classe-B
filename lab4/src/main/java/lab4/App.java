@@ -39,13 +39,17 @@ public class App {
         readConfigFiles();
 
         /* Create group of victims */
-        //Group group = new Group(MAILS.length, MAILS);
-        Group group = new Group(randomIndex.nextInt(MAILS.length));
+        int groupSize;
+        do {
+            groupSize = randomIndex.nextInt(MAILS.length);
+        } while (groupSize < 3);
+        System.out.println("Sending to group of " + groupSize + " victims");
+        Group group = new Group(groupSize, MAILS);
         String realSender = group.getRealSender();
         String fakeSender = group.getFakeSender();
-        String[] recipients = group.getVictims();
+        String[] recipients =  group.getVictims();
 
-        /* Start MockMockServer */
+        /* Create and Start connection to MockMockServer */
         createConnectServer();
 
         try {   /* Send msg corresponding to SMTP format */
@@ -73,7 +77,7 @@ public class App {
                             listVictims.append(recipients[j]);
 
                             if (j + 1 != recipients.length)
-                                listVictims.append(recipients[j]).append(", ");
+                                listVictims.append(", ");
                         }
                         SERVER.send(listVictims.toString());
 
@@ -82,7 +86,7 @@ public class App {
                         // Empty line needed to be clean between header and body
                         SERVER.send();
 
-                        /* Body (actual message) */
+                        /* Mail Body (actual message) */
                         SERVER.send(MSG_BODIES[randomIndex.nextInt(MSG_BODIES.length)]);
                         SERVER.send(".");
                         break;
@@ -119,6 +123,7 @@ public class App {
             SMTP_PORT = Integer.parseInt(serverCfg.get("portSMTP").toString());
             IP = (String) serverCfg.get("ip");
             ENCODING = (String) serverCfg.get("encoding");
+            System.out.println("Configuration read is: " + IP + ":" + SMTP_PORT + " with " + ENCODING + " encoding");
         } catch (Exception e) {
             System.out.println("Error  : Failed to read/extract server's config from file");
             System.out.println("Details: " + e);
@@ -128,13 +133,13 @@ public class App {
         try {
             System.out.println("Reading mailing list...");
             JSONArray mailsRead = JSONManager.readFromFile(MAILING_LIST_FILE);
-            System.out.println("Read " + mailsRead.size() + " mails");
 
             MAILS = new String[mailsRead.size()];
             for (int i = 0; i < mailsRead.size(); i++) {
                 JSONObject jsonObj = JSONManager.parseAs((JSONObject) mailsRead.get(i), "mail");
                 MAILS[i] = (String) jsonObj.get("address");
             }
+            System.out.println("Read " + mailsRead.size() + " mails addresses");
         } catch (Exception e) {
             System.out.println("Error  : Failed to read/extract mailing list from file");
             System.out.println("Details: " + e);
@@ -144,7 +149,6 @@ public class App {
         try {
             System.out.println("Reading message bodies...");
             JSONArray msgBodiesRead = JSONManager.readFromFile(MSG_BODIES_FILE);
-            System.out.println(msgBodiesRead.size() + " message bodies at disposal");
 
             MSG_BODIES = new String[msgBodiesRead.size()];
             MSG_SUBJECTS = new String[msgBodiesRead.size()];
@@ -153,6 +157,7 @@ public class App {
                 MSG_BODIES[i] = (String) jsonObj.get("body");
                 MSG_SUBJECTS[i] = (String) jsonObj.get("subject");
             }
+            System.out.println(msgBodiesRead.size() + " message bodies at disposal");
         } catch (Exception e) {
             System.out.println("Error  : Failed to read/extract mails' bodies from file");
             System.out.println("Details: " + e);
@@ -169,8 +174,8 @@ public class App {
             System.out.println("S: " + SERVER.receive());
 
             SERVER.send("HELP");
-            System.out.println("S: " + SERVER.receiveHelp("214 End of HELP info"));
-            System.out.println("--------------------");
+            System.out.print("S: " + SERVER.receiveHelp("214 End of HELP info"));
+            System.out.println("-------------------------------------");
         } catch (Exception e) {
             System.out.println("Error  : Failed to create/connect to MockMockServer");
             System.out.println("Details: " + e);
