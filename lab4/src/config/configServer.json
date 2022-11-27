@@ -1,0 +1,8 @@
+[
+    {
+        "config": {
+            "ip": "localhost",
+            "port": 8282
+        },
+    }
+]
