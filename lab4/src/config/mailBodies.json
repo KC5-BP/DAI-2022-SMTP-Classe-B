@@ -1,20 +1,16 @@
-[
-  {
-    "mailBody": {
-      "subject": "Ceci est un sujet :)",
-      "body": "Ceci est le coprs du message :)"
+{
+  "mailBody": [
+    {
+      "subject": "Cool ! LIFE HACKS ! 100 ACCURATE LIFE HACKS !",
+      "body": "https://youtu.be/-h5WrWncDZw?t=220"
+    },
+    {
+      "subject": "Ravioli, ravioli",
+      "body": "What's in the pocketoli"
+    },
+    {
+      "subject": ":o",
+      "body": "It's just a prank bro"
     }
-  },
-  {
-    "mailBody": {
-      "subject": "Ceci est un sujet :(",
-      "body": "Ceci est le coprs du message :("
-    }
-  },
-  {
-    "mailBody": {
-      "subject": "Ceci est un sujet :0",
-      "body": "Ceci est le coprs du message :0"
-    }
-  }
-]
+  ]
+}

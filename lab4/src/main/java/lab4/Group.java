@@ -20,13 +20,6 @@ public class Group {
     private static final Pattern VALID_EMAIL_ADDRESS_REGEX =
             Pattern.compile("^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$", Pattern.CASE_INSENSITIVE);
 
-
-//    public Group(String realSender, String fakeSender, ArrayList<String> victims) {
-//        this.realSender = realSender;
-//        this.fakeSender = fakeSender;
-//        this.victims = victims;
-//    }
-
     /**
      * @param groupSize Must be over 2. Size of the group of victims including the fake sender
      * @throws RuntimeException Group size bellow 3 or config files not found or invalid
@@ -56,7 +49,7 @@ public class Group {
 
         } catch (IOException | ParseException | RuntimeException e) {
             e.printStackTrace();
-            throw new RuntimeException("Config files not found or invalid");
+            throw new RuntimeException("config/mailList.json files not found or invalid");
         }
     }
 
@@ -96,7 +89,7 @@ public class Group {
                     System.err.println("Invalid email address found: " + jsonArray.get(rndIndex));
                 }
             }
-            // prevent infinite loop in case of a bad JSONArray
+            // Prevent infinite loop in case of a bad JSONArray
             if (indexesTested.size() == jsonArray.size() && generated.size() != groupSize)
                 throw new RuntimeException("Not enough email address found in jsonArray");
         }
