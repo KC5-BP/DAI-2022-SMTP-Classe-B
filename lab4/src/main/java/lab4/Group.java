@@ -16,6 +16,7 @@ import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
 public class Group {
+    public static final int GROUP_SIZE_MIN = 3;
     private final String realSender;
     private final String fakeSender;
     private final ArrayList<String> victims;
