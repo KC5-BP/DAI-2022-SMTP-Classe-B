@@ -2,6 +2,7 @@
     {
         "config": {
             "ip": "localhost",
+            "encoding": "UTF-8",
             "portSMTP": 25000,
             "portHTTP": 8282
         },
