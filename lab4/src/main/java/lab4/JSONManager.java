@@ -22,6 +22,8 @@ public class JSONManager {
 
             /* Object parsed as jsonArray */
             jsonArray = (JSONArray) obj;
+
+            fr.close();
         } catch (Exception e) {
             System.out.println("Error: " + e);
         }
