@@ -2,7 +2,8 @@
     {
         "config": {
             "ip": "localhost",
-            "port": 8282
+            "portSMTP": 25000,
+            "portHTTP": 8282
         },
     }
 ]
