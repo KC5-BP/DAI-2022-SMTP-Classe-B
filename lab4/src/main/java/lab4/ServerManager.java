@@ -7,7 +7,7 @@ import java.io.OutputStreamWriter;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.util.Objects;
+import java.nio.charset.*;
 
 public class ServerManager {
     private final String IP;
@@ -28,8 +28,30 @@ public class ServerManager {
         this.socket = new Socket(this.IP, this.PORT);
 
         /* Create in + out */
-        this.in  = new BufferedReader(new InputStreamReader( this.socket.getInputStream() ));
+        this.in  = new BufferedReader(new InputStreamReader( this.socket.getInputStream()));
         this.out = new BufferedWriter(new OutputStreamWriter(this.socket.getOutputStream()));
+
+        if (in  == null)
+            throw new Exception("Input stream is null");
+
+        if (out == null)
+            throw new Exception("Output stream is null");
+    }
+
+    public ServerManager(String ip, int port, Charset cs) throws Exception {
+        if (ip == null || ip.isEmpty())
+            throw new Exception("IP cannot be null or empty");
+
+        /* Initialise attributes */
+        this.IP = ip;
+        this.PORT = port;
+
+        /* Create socket */
+        this.socket = new Socket(this.IP, this.PORT);
+
+        /* Create in + out */
+        this.in  = new BufferedReader(new InputStreamReader( this.socket.getInputStream() , cs));
+        this.out = new BufferedWriter(new OutputStreamWriter(this.socket.getOutputStream(), cs));
 
         if (in  == null)
             throw new Exception("Input stream is null");

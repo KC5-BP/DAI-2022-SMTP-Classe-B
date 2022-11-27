@@ -1,5 +1,7 @@
 package lab4;
 
+import java.nio.charset.StandardCharsets;
+
 public class TestServerManager {
 
     private final static String IP = "127.0.0.1";
@@ -20,7 +22,7 @@ public class TestServerManager {
         };
         String[] msgBody = { "Hey!", "Listen!" };
         try {
-            ServerManager server = new ServerManager(IP, SMTP_PORT);
+            ServerManager server = new ServerManager(IP, SMTP_PORT, StandardCharsets.UTF_8);
             System.out.println("S: " + server.receive());
 
             server.send("HELP");
@@ -43,7 +45,7 @@ public class TestServerManager {
 
                         server.send("Subject: Test");
                         server.send();
-                        server.send(msgBody); // TODO Encoder (voire donnée->constraints)
+                        server.send(msgBody);
                         server.send(".");
                         break;
                     default:
