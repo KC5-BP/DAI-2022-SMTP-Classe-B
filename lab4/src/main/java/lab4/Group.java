@@ -8,6 +8,8 @@ import java.util.Random;
 import java.util.Set;
 import java.util.regex.Pattern;
 
+
+// TODO To review with simplest version + Remove useless stuff (see JSONManager)
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
