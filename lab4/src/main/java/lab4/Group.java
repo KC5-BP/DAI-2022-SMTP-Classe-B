@@ -55,6 +55,25 @@ public class Group {
         }
     }
 
+    public Group(int groupSize, String[] mailingList) {
+        if (groupSize < 3) {
+            throw new RuntimeException("Group size must be over 2");
+        }
+        try {
+
+            ArrayList<String> group = getRandomMailAddress(mailingList, groupSize + 1);
+            realSender = group.get(0);
+            fakeSender = group.get(1);
+            group.remove(1);
+            group.remove(0);
+            victims = new ArrayList<>();
+            victims.addAll(group);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("config/mailList.json files not found or invalid");
+        }
+    }
+
     public String getRealSender() {
         return realSender;
     }
@@ -99,6 +118,32 @@ public class Group {
         for (int i : generated) {
             arrayList.add((String) jsonArray.get(i));
         }
+        return arrayList;
+    }
+
+    private ArrayList<String> getRandomMailAddress(String[] list, int groupSize){
+        Random random = new Random();
+        Set<Integer> generated = new LinkedHashSet<>();
+        Set<Integer> indexesTested = new LinkedHashSet<>();
+
+        while (generated.size() < groupSize) {
+            int rndIndex = random.nextInt(list.length);
+
+            if(indexesTested.add(rndIndex)) { // If the index has not been tested already
+                if (VALID_EMAIL_ADDRESS_REGEX.matcher((String) list[rndIndex]).matches()) {
+                    generated.add(rndIndex); // Cannot add twice the same Integer
+                } else {
+                    System.err.println("Invalid email address found: " + list[rndIndex]);
+                }
+            }
+            // Prevent infinite loop in case of a bad JSONArray
+            if (indexesTested.size() == list.length && generated.size() != groupSize)
+                throw new RuntimeException("Not enough email address found in jsonArray");
+        }
+        ArrayList<String> arrayList = new ArrayList<>();
+        for (int i : generated)
+            arrayList.add(list[i]);
+
         return arrayList;
     }
 }
