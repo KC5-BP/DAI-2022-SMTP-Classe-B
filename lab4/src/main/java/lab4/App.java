@@ -35,8 +35,17 @@ public class App {
         Random randomIndex = new Random();
 
         /* Read config. files: */
-        readConfigFiles();
-        System.out.println();
+        System.out.println("CFG $> Reading Server's configs...");
+        readServerConfig();
+        System.out.println("CFG $> " + IP + ":" + SMTP_PORT + " with " + ENCODING + " encoding");
+
+        System.out.println("CFG $> Reading mailing list...");
+        readMailingList();
+        System.out.println("CFG $> " + MAILS.length + " mails addresses extracted");
+
+        System.out.println("CFG $> Reading message bodies...");
+        readMailBodies();
+        System.out.println("CFG $> " + MSG_BODIES.length + " message bodies & subjects at disposal\n");
 
         System.out.print("Create group of ");
         int groupSize;
@@ -111,12 +120,10 @@ public class App {
     }
 
     /**
-     *
+     * Import server config.
      */
-    private static void readConfigFiles() {
-        /* --- Import server config. --- */
+    private static void readServerConfig() {
         try {
-            System.out.println("CFG $> Reading Server's configs...");
             JSONArray serverCfgsRead = JSONManager.readFromFile(SERVER_CFG_FILE);
 
             /* Take first index for MockMockServer */
@@ -125,15 +132,17 @@ public class App {
             SMTP_PORT = Integer.parseInt(serverCfg.get("portSMTP").toString());
             IP = (String) serverCfg.get("ip");
             ENCODING = (String) serverCfg.get("encoding");
-            System.out.println("CFG $> " + IP + ":" + SMTP_PORT + " with " + ENCODING + " encoding");
         } catch (Exception e) {
             System.out.println("Error  : Failed to read/extract server's config from file");
             System.out.println("Details: " + e);
         }
+    }
 
-        /* --- Import mailing list --- */
+    /**
+     * Import mailing list
+     */
+    private static void readMailingList() {
         try {
-            System.out.println("CFG $> Reading mailing list...");
             JSONArray mailsRead = JSONManager.readFromFile(MAILING_LIST_FILE);
 
             MAILS = new String[mailsRead.size()];
@@ -141,15 +150,17 @@ public class App {
                 JSONObject jsonObj = JSONManager.parseAs((JSONObject) mailsRead.get(i), "mail");
                 MAILS[i] = (String) jsonObj.get("address");
             }
-            System.out.println("CFG $> " + mailsRead.size() + " mails addresses extracted");
         } catch (Exception e) {
             System.out.println("Error  : Failed to read/extract mailing list from file");
             System.out.println("Details: " + e);
         }
+    }
 
-        /* --- Import message bodies --- */
+    /*
+     * Import message bodies
+     */
+    private static void readMailBodies() {
         try {
-            System.out.println("CFG $> Reading message bodies...");
             JSONArray msgBodiesRead = JSONManager.readFromFile(MSG_BODIES_FILE);
 
             MSG_BODIES = new String[msgBodiesRead.size()];
@@ -159,7 +170,6 @@ public class App {
                 MSG_BODIES[i] = (String) jsonObj.get("body");
                 MSG_SUBJECTS[i] = (String) jsonObj.get("subject");
             }
-            System.out.println("CFG $> " + msgBodiesRead.size() + " message bodies & subjects at disposal");
         } catch (Exception e) {
             System.out.println("Error  : Failed to read/extract mails' bodies from file");
             System.out.println("Details: " + e);
