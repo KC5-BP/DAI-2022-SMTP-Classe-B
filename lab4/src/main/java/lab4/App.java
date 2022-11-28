@@ -24,13 +24,6 @@ public class App {
     private static ServerManager SERVER;
 
     public static void main(String[] args) {
-        String[] msgFormat = {
-                "HELO Dump",
-                "MAIL FROM:<%s>",
-                "RCPT TO:<%s>",
-                "DATA",
-                "QUIT"
-        };
         /* Random index, used for: Group size, Subject, Mail Bodies */
         Random randomIndex = new Random();
 
@@ -55,14 +48,107 @@ public class App {
         System.out.println(groupSize + " victims\n");
 
         Group group = new Group(groupSize, MAILS);
-        String realSender = group.getRealSender();
-        String fakeSender = group.getFakeSender();
-        String[] recipients =  group.getVictims();
+
 
         System.out.println("Creating & Starting connection to mock server...");
         createConnectServer();
 
-        try {   /* Send msg corresponding to SMTP format */
+        /* Send msg corresponding to SMTP format */
+        sendMail(group);
+
+        /* Closing connection to MockMockServer properly */
+        try {
+            SERVER.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Import server config.
+     */
+    private static void readServerConfig() {
+        try {
+            JSONArray serverCfgsRead = JSONManager.readFromFile(SERVER_CFG_FILE);
+
+            /* Take first index for MockMockServer */
+            JSONObject serverCfg = JSONManager.parseAs((JSONObject) serverCfgsRead.get(0), "config");
+
+            SMTP_PORT = Integer.parseInt(serverCfg.get("portSMTP").toString());
+            IP = (String) serverCfg.get("ip");
+            ENCODING = (String) serverCfg.get("encoding");
+        } catch (Exception e) {
+            throw new RuntimeException("Error  : Failed to read/extract server's config from file\nDetails: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Import mailing list
+     */
+    private static void readMailingList() {
+        try {
+            JSONArray mailsRead = JSONManager.readFromFile(MAILING_LIST_FILE);
+
+            MAILS = new String[mailsRead.size()];
+            for (int i = 0; i < mailsRead.size(); i++) {
+                JSONObject jsonObj = JSONManager.parseAs((JSONObject) mailsRead.get(i), "mail");
+                MAILS[i] = (String) jsonObj.get("address");
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Error  : Failed to read/extract mailing list from file\nDetails: " + e.getMessage());
+        }
+    }
+
+    /*
+     * Import message bodies
+     */
+    private static void readMailBodies() {
+        try {
+            JSONArray msgBodiesRead = JSONManager.readFromFile(MSG_BODIES_FILE);
+
+            MSG_BODIES = new String[msgBodiesRead.size()];
+            MSG_SUBJECTS = new String[msgBodiesRead.size()];
+            for (int i = 0; i < msgBodiesRead.size(); i++) {
+                JSONObject jsonObj = JSONManager.parseAs((JSONObject) msgBodiesRead.get(i), "mailBody");
+                MSG_BODIES[i] = (String) jsonObj.get("body");
+                MSG_SUBJECTS[i] = (String) jsonObj.get("subject");
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Error  : Failed to read/extract mails' bodies from file\nDetails: " + e.getMessage());
+        }
+    }
+
+    /**
+     *
+     */
+    private static void createConnectServer() {
+        try {
+            SERVER = new ServerManager(IP, SMTP_PORT, Charset.forName(ENCODING));
+            System.out.println("S: " + SERVER.receive());
+
+            //SERVER.send("HELP");
+            //System.out.print("S: " + SERVER.receiveHelp("214 End of HELP info"));
+            System.out.println("-------------------------------------");
+        } catch (Exception e) {
+            throw new RuntimeException("Error  : Failed to create/connect to MockMockServer\nDetails: " + e.getMessage());
+        }
+    }
+
+    private static void sendMail(Group group) {
+        String[] msgFormat = {
+                "HELO Dump",
+                "MAIL FROM:<%s>",
+                "RCPT TO:<%s>",
+                "DATA",
+                "QUIT"
+        };
+        Random randomIndex = new Random();
+
+        String realSender = group.getRealSender();
+        String fakeSender = group.getFakeSender();
+        String[] recipients =  group.getVictims();
+
+        try {
             for (int i = 0; i < msgFormat.length; i++) {
                 switch (i) {
                     case 1: /* MAIL FROM */
@@ -92,12 +178,13 @@ public class App {
                         SERVER.send(listVictims.toString());
 
                         /* Subject: */
-                        SERVER.send("Subject: " + MSG_SUBJECTS[randomIndex.nextInt(MSG_SUBJECTS.length)]);
+                        int rand = randomIndex.nextInt(MSG_SUBJECTS.length);
+                        SERVER.send("Subject: " + MSG_SUBJECTS[rand]);
                         // Empty line needed to be clean between header and body
                         SERVER.send();
 
                         /* Mail Body (actual message) */
-                        SERVER.send(MSG_BODIES[randomIndex.nextInt(MSG_BODIES.length)]);
+                        SERVER.send(MSG_BODIES[rand]);
                         SERVER.send(".");
                         break;
                     default:
@@ -107,89 +194,8 @@ public class App {
                 System.out.println("C: " + msgFormat[i]);
                 System.out.println("S: " + SERVER.receive());
             }
-        } catch (Exception e) { // TODO gestion des exeptions?
-            e.printStackTrace();
-        }
-
-        /* Closing connection to MockMockServer properly */
-        try {
-            SERVER.close();
         } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    /**
-     * Import server config.
-     */
-    private static void readServerConfig() {
-        try {
-            JSONArray serverCfgsRead = JSONManager.readFromFile(SERVER_CFG_FILE);
-
-            /* Take first index for MockMockServer */
-            JSONObject serverCfg = JSONManager.parseAs((JSONObject) serverCfgsRead.get(0), "config");
-
-            SMTP_PORT = Integer.parseInt(serverCfg.get("portSMTP").toString());
-            IP = (String) serverCfg.get("ip");
-            ENCODING = (String) serverCfg.get("encoding");
-        } catch (Exception e) {
-            System.out.println("Error  : Failed to read/extract server's config from file");
-            System.out.println("Details: " + e);
-        }
-    }
-
-    /**
-     * Import mailing list
-     */
-    private static void readMailingList() {
-        try {
-            JSONArray mailsRead = JSONManager.readFromFile(MAILING_LIST_FILE);
-
-            MAILS = new String[mailsRead.size()];
-            for (int i = 0; i < mailsRead.size(); i++) {
-                JSONObject jsonObj = JSONManager.parseAs((JSONObject) mailsRead.get(i), "mail");
-                MAILS[i] = (String) jsonObj.get("address");
-            }
-        } catch (Exception e) {
-            System.out.println("Error  : Failed to read/extract mailing list from file");
-            System.out.println("Details: " + e);
-        }
-    }
-
-    /*
-     * Import message bodies
-     */
-    private static void readMailBodies() {
-        try {
-            JSONArray msgBodiesRead = JSONManager.readFromFile(MSG_BODIES_FILE);
-
-            MSG_BODIES = new String[msgBodiesRead.size()];
-            MSG_SUBJECTS = new String[msgBodiesRead.size()];
-            for (int i = 0; i < msgBodiesRead.size(); i++) {
-                JSONObject jsonObj = JSONManager.parseAs((JSONObject) msgBodiesRead.get(i), "mailBody");
-                MSG_BODIES[i] = (String) jsonObj.get("body");
-                MSG_SUBJECTS[i] = (String) jsonObj.get("subject");
-            }
-        } catch (Exception e) {
-            System.out.println("Error  : Failed to read/extract mails' bodies from file");
-            System.out.println("Details: " + e);
-        }
-    }
-
-    /**
-     *
-     */
-    private static void createConnectServer() {
-        try {
-            SERVER = new ServerManager(IP, SMTP_PORT, Charset.forName(ENCODING));
-            System.out.println("S: " + SERVER.receive());
-
-            //SERVER.send("HELP");
-            //System.out.print("S: " + SERVER.receiveHelp("214 End of HELP info"));
-            System.out.println("-------------------------------------");
-        } catch (Exception e) {
-            System.out.println("Error  : Failed to create/connect to MockMockServer");
-            System.out.println("Details: " + e);
+            throw new RuntimeException("Error  : Failed to send mail\nDetails: " + e.getMessage());
         }
     }
 }
