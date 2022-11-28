@@ -5,6 +5,14 @@
             "encoding": "UTF-8",
             "portSMTP": 2525,
             "portHTTP": 8080
-        },
-    }
+        }
+    },
+    {
+        "config": {
+            "ip": "localhost",
+            "encoding": "UTF-8",
+            "portSMTP": 25000,
+            "portHTTP": 8282
+        }
+    },
 ]
