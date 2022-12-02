@@ -21,7 +21,7 @@ public class App {
     private static String[] MSG_SUBJECTS;
     private static String[] MSG_BODIES;
 
-    /* Socket to MockMockServer (using ServerManager created class) */
+    /* Socket to MockMockServer (using ServerWrapper created class) */
     private static ServerWrapper SERVER;
 
     public static void main(String[] args) {
@@ -41,6 +41,7 @@ public class App {
         readMailBodies();
         System.out.println("CFG $> " + MSG_BODIES.length + " message bodies & subjects at disposal\n");
 
+        /* Generate random group */
         System.out.print("Create group of ");
         int groupSize;
         do {
@@ -57,7 +58,7 @@ public class App {
         /* Send msg corresponding to SMTP format */
         sendMail(group);
 
-        /* Closing connection to MockMockServer properly */
+        /* Closing connection to server properly */
         try {
             SERVER.close();
         } catch (Exception e) {
@@ -66,14 +67,15 @@ public class App {
     }
 
     /**
-     * Import server config.
+     * Import server config. and stock resulting param's in global
+     * SMTP_PORT, IP and ENCODING
      */
     private static void readServerConfig() {
         try {
-            JSONArray serverCfgsRead = JSONManager.readFromFile(SERVER_CFG_FILE);
+            JSONArray serverCfgsRead = JSONExtractor.readFromFile(SERVER_CFG_FILE);
 
             /* Take first index for MockMockServer */
-            JSONObject serverCfg = JSONManager.parseAs((JSONObject) serverCfgsRead.get(0), "config");
+            JSONObject serverCfg = JSONExtractor.parseAs((JSONObject) serverCfgsRead.get(0), "config");
 
             SMTP_PORT = Integer.parseInt(serverCfg.get("portSMTP").toString());
             IP = (String) serverCfg.get("ip");
@@ -84,15 +86,15 @@ public class App {
     }
 
     /**
-     * Import mailing list
+     * Import mailing list and stock resulting mail addresses in MAILS
      */
     private static void readMailingList() {
         try {
-            JSONArray mailsRead = JSONManager.readFromFile(MAILING_LIST_FILE);
+            JSONArray mailsRead = JSONExtractor.readFromFile(MAILING_LIST_FILE);
 
             MAILS = new String[mailsRead.size()];
             for (int i = 0; i < mailsRead.size(); i++) {
-                JSONObject jsonObj = JSONManager.parseAs((JSONObject) mailsRead.get(i), "mail");
+                JSONObject jsonObj = JSONExtractor.parseAs((JSONObject) mailsRead.get(i), "mail");
                 MAILS[i] = (String) jsonObj.get("address");
             }
         } catch (Exception e) {
@@ -101,16 +103,17 @@ public class App {
     }
 
     /*
-     * Import message bodies
+     * Import message bodies and stock resulting mail's content in global
+     * MSG_SUBJECTS and MSG_BODIES
      */
     private static void readMailBodies() {
         try {
-            JSONArray msgBodiesRead = JSONManager.readFromFile(MSG_BODIES_FILE);
+            JSONArray msgBodiesRead = JSONExtractor.readFromFile(MSG_BODIES_FILE);
 
             MSG_BODIES = new String[msgBodiesRead.size()];
             MSG_SUBJECTS = new String[msgBodiesRead.size()];
             for (int i = 0; i < msgBodiesRead.size(); i++) {
-                JSONObject jsonObj = JSONManager.parseAs((JSONObject) msgBodiesRead.get(i), "mailBody");
+                JSONObject jsonObj = JSONExtractor.parseAs((JSONObject) msgBodiesRead.get(i), "mailBody");
                 MSG_BODIES[i] = (String) jsonObj.get("body");
                 MSG_SUBJECTS[i] = (String) jsonObj.get("subject");
             }
@@ -120,7 +123,8 @@ public class App {
     }
 
     /**
-     *
+     * Create & connect to server (MockMock for this application)
+     * and stock resulting socket in global SERVER
      */
     private static void createConnectServer() {
         try {
@@ -135,6 +139,9 @@ public class App {
         }
     }
 
+    /**
+     * Send randomly chosen mail to group of victims, respecting SMTP format
+     */
     private static void sendMail(Group group) {
         String[] msgFormat = {
                 "HELO Dump",
@@ -207,7 +214,10 @@ public class App {
         }
     }
 
-    /* Add HTML-utf8 + base64 encoding */
+    /**
+     * Add HTML-utf8 + base64 encoding
+     * @return String encoded
+     */
     private static String encodeToHtml(String str, String encoding, String charset) {
         return String.format("=?%s?%s?%s?=", encoding, charset, Base64.getEncoder().encodeToString(str.getBytes()));
     }

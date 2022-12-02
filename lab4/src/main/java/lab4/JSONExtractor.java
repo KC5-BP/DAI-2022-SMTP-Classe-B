@@ -8,6 +8,10 @@ import org.json.simple.parser.JSONParser;
 
 public class JSONExtractor {
 
+    /**
+     * Read JSON file and return content as JSONArray
+     * @return JSONArray
+     */
     public static JSONArray readFromFile(String filename) {
         JSONParser jsonParser = new JSONParser();
         JSONArray jsonArray = null;
@@ -29,6 +33,10 @@ public class JSONExtractor {
         return jsonArray;
     }
 
+    /**
+     * Parse from JSONObject json attribute defined by type
+     * @return JSONObject
+     */
     public static JSONObject parseAs(JSONObject jsonObj, String type) {
          return (JSONObject) jsonObj.get(type);
     }
