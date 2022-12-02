@@ -4,6 +4,7 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
 import java.nio.charset.Charset;
+import java.util.Base64;
 import java.util.Random;
 
 
@@ -177,13 +178,20 @@ public class App {
                         }
                         SERVER.send(listVictims.toString());
 
+                        /* Add encoding to Subject AND Bodies */
+                        SERVER.send("Content-Type: text/plain; charset=" + ENCODING);
+
                         /* Subject: */
                         int rand = randomIndex.nextInt(MSG_SUBJECTS.length);
-                        SERVER.send("Subject: " + MSG_SUBJECTS[rand]);
+                        SERVER.send("Subject: " + encodeToHtml(MSG_SUBJECTS[rand], ENCODING, "B"));
                         // Empty line needed to be clean between header and body
                         SERVER.send();
 
                         /* Mail Body (actual message) */
+                        /* Encoding the MSG_BODIES[] lead to display the Base64
+                         *      ended version in the mailbox
+                         *          instead of the ASCII readable char. */
+                        //SERVER.send(encodeToHtml(MSG_BODIES[rand], ENCODING, "B"));
                         SERVER.send(MSG_BODIES[rand]);
                         SERVER.send(".");
                         break;
@@ -198,4 +206,10 @@ public class App {
             throw new RuntimeException("Error  : Failed to send mail\nDetails: " + e.getMessage());
         }
     }
+
+    /* Add HTML-utf8 + base64 encoding */
+    private static String encodeToHtml(String str, String encoding, String charset) {
+        return String.format("=?%s?%s?%s?=", encoding, charset, Base64.getEncoder().encodeToString(str.getBytes()));
+    }
 }
+
