@@ -15,10 +15,10 @@ which stands for Internet Application Development (Développement d'Application 
 
 This lab will allow any user to:
 
-- Send forged e-mails (in this case, containing jokes) to a list of victims
+- Send forged e-mails (in this case, containing jokes) to a list of victims, through the usage of a mock server
 - Define the number of groups of victims that will receive the same e-mail
     - A group contains 1 sender and at least 2 recipients, so minimum size group is 3
-- Define any message content (joke) that will be sent to victims
+- Define any message (joke) that can be sent to victims
 
 ## Details
 
@@ -27,10 +27,10 @@ a joke by email to a group of victims. The client application will use the Socke
 API to communicate with a SMTP server.
 
 The SMTP server will be set in place through a mock server
-(using [MockMock server](https://github.com/DominiqueComte/MockMock) repo). In this repo.,
+(using [MockMock](https://github.com/DominiqueComte/MockMock) repo). In this repo.,
 the MockMock repository has been duplicated and can be found in the MockMock-docker folder.
 
-For more details about the objectives and constraints, please refer to the [lab instructions](Donnee.md).
+For more details about the objectives and constraints concerning this lab, please refer to the [lab instructions](Donnee.md).
 
 ### Mock server
 
@@ -43,9 +43,11 @@ In our case, we will use it to test our client application without sending real 
 
 #### Test it yourself with a Docker container
 
-Docker is a tool that allows to run applications in a container.
-A container is a virtual environment that allows to run an application in
-isolation from the host machine, but using its resources.
+##### Docker presentation
+
+Docker is a tool that allows an applications to be run in a container.
+A container is a virtual environment that allows an application to run
+isolated from the host machine, but sharing its resources.
 
 ##### Create the container
 
@@ -56,11 +58,13 @@ and run the following command:
 docker build --tag mockmock-docker .
 ```
 
-*Might need to run it as sudo/administrator.*
+Where you can enter something different to identify the image (here, mockmock-docker).
 
-This will create a container named (tagged) `mockmock-docker` from the Dockerfile.
+*Remark: Might need to run it as sudo/administrator.*
 
-And need to be done only once.
+This will create a container named (tagged) `mockmock-docker` from the Dockerfile (rules to create a docker image).
+
+This need to be done only once.
 
 ##### Run the container
 
@@ -71,10 +75,10 @@ and run :
 docker run -p 8080:8282 -p 2525:25000 --rm mockmock-docker
 ```
 
-*Might need to run it as sudo/administrator.*
+*Remarks: Might need to run it as sudo/administrator.*
 
 This will run the container and expose the ports 8080 and 2525 on the host machine. 
-You should now be able to access the MockMock server application by typing `localhost:8080` in your browser.
+You should now be able to access the MockMock server application by typing `localhost:8080` in any browser.
 
 After closing the container (Ctrl+C), it will free resources properly. 
 
@@ -84,8 +88,9 @@ Just run that command again to use the mock server again.
 
 #### IDE
 
-You can clone this repo. and open the project and run it in your favorite IDE.
+You can clone this repo., open the project and run it in your favorite IDE **:warning: while the mock server is running :warning:**.
 
+<!-- Commented because not find a way to make it work properly yet
 #### Command line
 
 If you want to run it from the command line, you need some dependencies to be installed:
@@ -100,8 +105,8 @@ Then, you can run the following command in the lab4/ folder of the project:
 mvn clean install
 
 # Run the project
-
 ```
+-->
 
 #### Configuration files
 
@@ -118,8 +123,8 @@ They are in a JSON format and are used to configure multiple options for the cli
     "config": {
         "ip": "localhost",    // IP address of the server
         "encoding": "UTF-8",  // Encoding used to send messages + for HTML format
-        "portSMTP": 25000,    // Port used to connect to the server
-        "portHTTP": 8282      // Not used in this application, but given by default
+        "portSMTP": 2525,     // Port used to connect to the server
+        "portHTTP": 8080      // Not used in this application, but given by default
   }
 }
 ```
@@ -145,7 +150,16 @@ The format is as followed:
 ```json
 {
     {"mail":  { "address": "bobby.hermann@gmail.com" } },
-    {"mail":  { "address": "bobby.hermann@gmail.com" } },
+    {"mail":  { "address": "considine.kelsie@hotmail.com" } },
     ...
 }
 ```
+
+### Client application
+
+This is how the application is split:
+
+![class_diagram](figures/classDiagram.png)
+
+[class diagram figure](figures/classDiagram.png)
+C

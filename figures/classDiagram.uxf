@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<diagram program="umlet" version="13.3">
+  <zoom_level>8</zoom_level>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>752</x>
+      <y>472</y>
+      <w>472</w>
+      <h>192</h>
+    </coordinates>
+    <panel_attributes>Group
+--
+_-GROUP_SIZE_MIN : int_
+-realSender : String
+-fakeSender : String
+-victims : ArrayList&lt;String&gt;
+_-VALID_EMAIL_ADDRESS_REGEX : Pattern_
+--
++Group(size : int)
++Group(size : int, mailingList : String[])
++getRealSender() : String
++getFakeSender() : String
++getVictims() : String
+-getRandomMailAddresses(jsonArray : JSONArray, groupSize : int) : Array&lt;String&gt;
+-getRandomMailAddresses(list : String[], groupSize : int) : Array&lt;String&gt;</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>376</x>
+      <y>472</y>
+      <w>344</w>
+      <h>56</h>
+    </coordinates>
+    <panel_attributes>JSONExtractor
+--
+_+readFromFile(filename : String) : JSONArray_
+_+parseAs(jsonObj : JSONObject, type : String) : JSONObject_</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>248</x>
+      <y>80</y>
+      <w>576</w>
+      <h>256</h>
+    </coordinates>
+    <panel_attributes>App
+--
+_-SERVER_CFG_FILE : String_
+_-MSG_BODIES_FILE : String_
+_-MAILING_LIST_FILE : String_
+_-SMTP_PORT : int_
+_-IP : String_
+_-ENCODING : String_
+_-private static String[] MAILS : String[]_
+_-private static String[] MSG_SUBJECTS : String[]_
+_-MSG_BODIES : String[]_
+_-SERVER : ServerManager_
+--
+_+main(args : String[]) : void
+_-readServerConfig() : void_
+_-readMailingList() : void_
+_-readMailBodies() : void_
+_-createConnectServer() : void_
+_-sendMail(group : Group)_
+_-encodeToHtml() : String_</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>192</x>
+      <y>328</y>
+      <w>232</w>
+      <h>160</h>
+    </coordinates>
+    <panel_attributes>lt=-</panel_attributes>
+    <additional_attributes>10.0;180.0;10.0;90.0;270.0;90.0;270.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>680</x>
+      <y>328</y>
+      <w>320</w>
+      <h>160</h>
+    </coordinates>
+    <panel_attributes>lt=-</panel_attributes>
+    <additional_attributes>10.0;10.0;10.0;90.0;380.0;90.0;380.0;180.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>56</x>
+      <y>472</y>
+      <w>288</w>
+      <h>168</h>
+    </coordinates>
+    <panel_attributes>ServerWrapper
+--
+-String IP : String
+-PORT : int
+-Socket socket : Socket
+-in : BufferedReader
+-out : BufferedWriter
+--
++ServerWrapper(ip : String, port : int)
++ServerWrapper(ip : String, port : int, cs : String)
++send() : void
++send(message : String) : void
++send(message : String[]) : void
++receive() : String
++receiveHelp(endOfHelp : String) : String
++close()</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>536</x>
+      <y>328</y>
+      <w>24</w>
+      <h>160</h>
+    </coordinates>
+    <panel_attributes>lt=-</panel_attributes>
+    <additional_attributes>10.0;180.0;10.0;10.0</additional_attributes>
+  </element>
+</diagram>
