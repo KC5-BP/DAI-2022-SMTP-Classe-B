@@ -1,19 +1,22 @@
 [
     {
         "mailBody": {
-            "subject": "Cool ! LIFE HACKS ! 100 ACCURATE LIFE HACKS !",
+            "subject": "$ Cool ! LIFE HACKS ! 100 ACCURATE LIFE HACKS ! $",
             "body": "https://youtu.be/-h5WrWncDZw?t=220"
         }
     },
     {
         "mailBody": {
-            "subject": "Ravioli, ravioli",
-            "body": "What's in the pocketoli"
+            "subject": "Ravioli, ravioli (et des caractères spéciaux)",
+            "body": "What's in the pocketoli
+            Et avec plusieurs
+            lignes?
+            $è¨$äüö"
         }
     },
     {
         "mailBody": {
-            "subject": ":o",
+            "subject": ":o (Òüî, ôÚï)",
             "body": "It's just a prank bro"
         }
     },
