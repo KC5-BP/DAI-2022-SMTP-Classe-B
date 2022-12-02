@@ -31,7 +31,7 @@ public class TestServerManager {
         String[] recipients = group.getVictims();
 
         try {
-            ServerManager server = new ServerManager(IP, SMTP_PORT, StandardCharsets.UTF_8);
+            ServerWrapper server = new ServerWrapper(IP, SMTP_PORT, StandardCharsets.UTF_8);
             System.out.println("S: " + server.receive());
 
             server.send("HELP");

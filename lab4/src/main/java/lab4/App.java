@@ -22,7 +22,7 @@ public class App {
     private static String[] MSG_BODIES;
 
     /* Socket to MockMockServer (using ServerManager created class) */
-    private static ServerManager SERVER;
+    private static ServerWrapper SERVER;
 
     public static void main(String[] args) {
         /* Random index, used for: Group size, Subject, Mail Bodies */
@@ -124,7 +124,7 @@ public class App {
      */
     private static void createConnectServer() {
         try {
-            SERVER = new ServerManager(IP, SMTP_PORT, Charset.forName(ENCODING));
+            SERVER = new ServerWrapper(IP, SMTP_PORT, Charset.forName(ENCODING));
             System.out.println("S: " + SERVER.receive());
 
             //SERVER.send("HELP");

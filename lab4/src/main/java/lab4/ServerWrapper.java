@@ -9,14 +9,14 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.nio.charset.*;
 
-public class ServerManager {
+public class ServerWrapper {
     private final String IP;
     private final int  PORT;
     private final Socket socket;
     private final BufferedReader  in;
     private final BufferedWriter out;
 
-    public ServerManager(String ip, int port) throws Exception {
+    public ServerWrapper(String ip, int port) throws Exception {
         if (ip == null || ip.isEmpty())
             throw new Exception("IP cannot be null or empty");
 
@@ -38,7 +38,7 @@ public class ServerManager {
             throw new Exception("Output stream is null");
     }
 
-    public ServerManager(String ip, int port, Charset cs) throws Exception {
+    public ServerWrapper(String ip, int port, Charset cs) throws Exception {
         if (ip == null || ip.isEmpty())
             throw new Exception("IP cannot be null or empty");
 

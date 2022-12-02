@@ -5,9 +5,8 @@ import java.io.FileReader;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
 
-public class JSONManager {
+public class JSONExtractor {
 
     public static JSONArray readFromFile(String filename) {
         JSONParser jsonParser = new JSONParser();
