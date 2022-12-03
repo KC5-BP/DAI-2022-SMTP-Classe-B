@@ -4,8 +4,10 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
 import java.nio.charset.Charset;
+import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Random;
+import java.util.Scanner;
 
 
 public class App {
@@ -28,39 +30,63 @@ public class App {
         /* Random index, used for: Group size, Subject, Mail Bodies */
         Random randomIndex = new Random();
 
-        /* Read config. files: */
-        System.out.println("CFG $> Reading Server's configs...");
-        readServerConfig();
-        System.out.println("CFG $> " + IP + ":" + SMTP_PORT + " with " + ENCODING + " encoding");
-
-        System.out.println("CFG $> Reading mailing list...");
-        readMailingList();
-        System.out.println("CFG $> " + MAILS.length + " mails addresses extracted");
-
-        System.out.println("CFG $> Reading message bodies...");
-        readMailBodies();
-        System.out.println("CFG $> " + MSG_BODIES.length + " message bodies & subjects at disposal\n");
-
-        /* Generate random group */
-        System.out.print("Create group of ");
-        int groupSize;
-        do {
-            groupSize = randomIndex.nextInt(MAILS.length);
-        } while (groupSize < Group.GROUP_SIZE_MIN);
-        System.out.println(groupSize + " victims\n");
-
-        Group group = new Group(groupSize, MAILS);
-
-
-        System.out.println("Creating & Starting connection to mock server...");
-        createConnectServer();
-
-        /* Send msg corresponding to SMTP format */
-        sendMail(group);
-
-        /* Closing connection to server properly */
         try {
-            SERVER.close();
+            /* Read config. files: */
+            System.out.println("CFG $> Reading Server's configs...");
+            readServerConfig();
+            System.out.println("CFG $> " + IP + ":" + SMTP_PORT + " with " + ENCODING + " encoding");
+
+            System.out.println("CFG $> Reading mailing list...");
+            readMailingList();
+            System.out.println("CFG $> " + MAILS.length + " mails addresses extracted");
+
+            System.out.println("CFG $> Reading message bodies...");
+            readMailBodies();
+            System.out.println("CFG $> " + MSG_BODIES.length + " message bodies & subjects at disposal\n");
+        } catch (Exception e) {
+            e.printStackTrace();
+            return;
+        }
+
+        /* Generate random groups */
+        System.out.print("Enter the number of groups to form : ");
+        Scanner s = new Scanner(System.in);
+        int numberOfGroups = s.nextInt();
+        ArrayList<Group> groupList = new ArrayList<>();
+
+        for (int i = 0; i < numberOfGroups; i++) {
+            System.out.print("Created group of ");
+            int groupSize;
+            do {
+                groupSize = randomIndex.nextInt(MAILS.length);
+            } while (groupSize < Group.GROUP_SIZE_MIN);
+            System.out.println(groupSize + " victims\n");
+
+            Group group;
+            try {
+                group = new Group(groupSize, MAILS);
+            } catch (Exception e) {
+                e.printStackTrace();
+                return;
+            }
+            groupList.add(group);
+        }
+
+        try {
+            for (Group group : groupList) {
+                System.out.println("Creating & Starting connection to mock server...");
+                createConnectServer();
+
+                /* Send msg corresponding to SMTP format */
+                sendMail(group);
+
+                /* Closing connection to server properly */
+                try {
+                    SERVER.close();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -69,6 +95,8 @@ public class App {
     /**
      * Import server config. and stock resulting param's in global
      * SMTP_PORT, IP and ENCODING
+     *
+     * @throws RuntimeException Failed to read/extract server's config from file
      */
     private static void readServerConfig() {
         try {
@@ -87,6 +115,8 @@ public class App {
 
     /**
      * Import mailing list and stock resulting mail addresses in MAILS
+     *
+     * @throws RuntimeException Failed to read/extract mailing list from file
      */
     private static void readMailingList() {
         try {
@@ -102,9 +132,11 @@ public class App {
         }
     }
 
-    /*
+    /**
      * Import message bodies and stock resulting mail's content in global
      * MSG_SUBJECTS and MSG_BODIES
+     *
+     * @throws RuntimeException Failed to read/extract mails' bodies from file
      */
     private static void readMailBodies() {
         try {
@@ -125,14 +157,14 @@ public class App {
     /**
      * Create & connect to server (MockMock for this application)
      * and stock resulting socket in global SERVER
+     *
+     * @throws RuntimeException Failed to create/connect to MockMockServer
      */
     private static void createConnectServer() {
         try {
             SERVER = new ServerWrapper(IP, SMTP_PORT, Charset.forName(ENCODING));
             System.out.println("S: " + SERVER.receive());
 
-            //SERVER.send("HELP");
-            //System.out.print("S: " + SERVER.receiveHelp("214 End of HELP info"));
             System.out.println("-------------------------------------");
         } catch (Exception e) {
             throw new RuntimeException("Error  : Failed to create/connect to MockMockServer\nDetails: " + e.getMessage());
@@ -141,6 +173,8 @@ public class App {
 
     /**
      * Send randomly chosen mail to group of victims, respecting SMTP format
+     *
+     * @throws RuntimeException Failed to send mail
      */
     private static void sendMail(Group group) {
         String[] msgFormat = {
@@ -154,7 +188,7 @@ public class App {
 
         String realSender = group.getRealSender();
         String fakeSender = group.getFakeSender();
-        String[] recipients =  group.getVictims();
+        String[] recipients = group.getRecepients();
 
         try {
             for (int i = 0; i < msgFormat.length; i++) {
@@ -216,6 +250,7 @@ public class App {
 
     /**
      * Add HTML-utf8 + base64 encoding
+     *
      * @return String encoded
      */
     private static String encodeToHtml(String str, String encoding, String charset) {

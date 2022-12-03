@@ -29,6 +29,7 @@ public class JSONExtractor {
             fr.close();
         } catch (Exception e) {
             System.out.println("Error: " + e);
+            throw new RuntimeException("filename not found or invalid");
         }
         return jsonArray;
     }
