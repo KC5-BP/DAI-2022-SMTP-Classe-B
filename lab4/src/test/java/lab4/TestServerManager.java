@@ -15,7 +15,6 @@ public class TestServerManager {
 
     private final static String IP = "127.0.0.1";
     private final static int SMTP_PORT = 2525;
-    private final static String CRLF = "\r\n";
 
     public static void main(String[] args) {
         String[] msgFormat = {

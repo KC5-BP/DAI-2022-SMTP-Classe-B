@@ -27,8 +27,10 @@ public class Group {
      * This version of the Group constructor is not used by the class App anymore. Only
      * testServerManager is still using it.
      * This constructor does not use the class JSONExtractor.
-     * @param groupSize Must be over 2. Size of the group of victims including the fake sender
-     * @throws RuntimeException Group size bellow 3 or config files not found or invalid
+     *
+     * @param groupSize Must be over 2. Size of the group of victims includes the fake sender
+     * @throws RuntimeException Group size bellow 3 or too big for the mailing list
+     *                          or config files not found or invalid
      */
     public Group(int groupSize) {
         if (groupSize < 3) {
@@ -63,12 +65,21 @@ public class Group {
         }
     }
 
+    /**
+     * @param groupSize   Must be over 2. Size of the group of victims includes the fake sender
+     * @param mailingList List of e-mails addresses
+     * @throws RuntimeException Group size bellow 3 or too big for the mailing list
+     *                          or config files not found or invalid
+     */
     public Group(int groupSize, String[] mailingList) {
         if (groupSize < 3) {
             throw new RuntimeException("Group size must be over 2");
         }
-        try {
+        if (groupSize > mailingList.length - 1) {
+            throw new RuntimeException("Group size too big for the mailing list");
+        }
 
+        try {
             ArrayList<String> group = getRandomMailAddress(mailingList, groupSize + 1);
             realSender = group.get(0);
             fakeSender = group.get(1);
@@ -78,7 +89,7 @@ public class Group {
             recepients.addAll(group);
         } catch (Exception e) {
             e.printStackTrace();
-            throw new RuntimeException("config/mailList.json files not found or invalid");
+            throw new RuntimeException("mailList.json files not found or invalid");
         }
     }
 
@@ -96,17 +107,17 @@ public class Group {
 
     /**
      * This method is only used by the old Group constructor.
-     *
+     * <p>
      * This constructor does not use the class JSONExtractor.
      * Get distinct number of random objects from a JSONArray. Inspired by
      * <a href="https://stackoverflow.com/q/40164555/8924032">Stackoverflow comment</a>
      *
      * @param jsonArray array of addresses to parse
      * @param groupSize number of distinct objects to retrieve
-     * @throws RuntimeException Not enough email address are found in jsonArray
      * @return array of indexes
+     * @throws RuntimeException Not enough email address are found in jsonArray
      */
-    private ArrayList<String> getRandomMailAddress(JSONArray jsonArray, int groupSize){
+    private ArrayList<String> getRandomMailAddress(JSONArray jsonArray, int groupSize) {
         Random random = new Random();
         Set<Integer> generated = new LinkedHashSet<>();
         Set<Integer> indexesTested = new LinkedHashSet<>();
@@ -114,7 +125,7 @@ public class Group {
         while (generated.size() < groupSize) {
             int rndIndex = random.nextInt(jsonArray.size());
 
-            if(indexesTested.add(rndIndex)) { // If the index has not been tested already
+            if (indexesTested.add(rndIndex)) { // If the index has not been tested already
                 if (VALID_EMAIL_ADDRESS_REGEX.matcher((String) jsonArray.get(rndIndex)).matches()) {
                     generated.add(rndIndex); // Cannot add twice the same Integer
                 } else {
@@ -135,12 +146,13 @@ public class Group {
     /**
      * Get distinct number of random objects from a JSONArray. Inspired by
      * <a href="https://stackoverflow.com/q/40164555/8924032">Stackoverflow comment</a>
-     * @param list array of address strings to select
+     *
+     * @param list      array of address strings to select
      * @param groupSize number of distinct objects to retrieve
-     * @throws RuntimeException Not enough email address are found in jsonArray
      * @return array of selected address strings
+     * @throws RuntimeException Not enough email address are found in jsonArray
      */
-    private ArrayList<String> getRandomMailAddress(String[] list, int groupSize){
+    private ArrayList<String> getRandomMailAddress(String[] list, int groupSize) {
         Random random = new Random();
         Set<Integer> generated = new LinkedHashSet<>();
         Set<Integer> indexesTested = new LinkedHashSet<>();
@@ -148,7 +160,7 @@ public class Group {
         while (generated.size() < groupSize) {
             int rndIndex = random.nextInt(list.length);
 
-            if(indexesTested.add(rndIndex)) { // If the index has not been tested already
+            if (indexesTested.add(rndIndex)) { // If the index has not been tested already
                 if (VALID_EMAIL_ADDRESS_REGEX.matcher(list[rndIndex]).matches()) {
                     generated.add(rndIndex); // Cannot add twice the same Integer
                 } else {
