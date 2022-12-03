@@ -154,7 +154,7 @@ public class App {
 
         String realSender = group.getRealSender();
         String fakeSender = group.getFakeSender();
-        String[] recipients =  group.getVictims();
+        String[] recipients =  group.getRecepients();
 
         try {
             for (int i = 0; i < msgFormat.length; i++) {

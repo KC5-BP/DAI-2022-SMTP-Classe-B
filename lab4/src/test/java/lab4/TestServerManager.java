@@ -14,7 +14,7 @@ import java.nio.charset.StandardCharsets;
 public class TestServerManager {
 
     private final static String IP = "127.0.0.1";
-    private final static int SMTP_PORT = 25000;
+    private final static int SMTP_PORT = 2525;
     private final static String CRLF = "\r\n";
 
     public static void main(String[] args) {
@@ -28,7 +28,7 @@ public class TestServerManager {
         Group group = new Group(5);
         String realSender = group.getRealSender();
         String fakeSender = group.getFakeSender();
-        String[] recipients = group.getVictims();
+        String[] recipients = group.getRecepients();
 
         try {
             ServerWrapper server = new ServerWrapper(IP, SMTP_PORT, StandardCharsets.UTF_8);
@@ -79,9 +79,8 @@ public class TestServerManager {
             }
 
             server.close();
-        } catch (Exception e) { // TODO gestion des exeptions?
+        } catch (Exception e) {
             e.printStackTrace();
-//            System.out.println(e.getMessage());
         }
     }
 
@@ -90,19 +89,20 @@ public class TestServerManager {
         JSONParser jsonParser = new JSONParser();
         String[] result = new String[2];
 
-        try (FileReader reader = new FileReader("./lab4/src/config/mailBodies.json")) {
+        try (FileReader reader = new FileReader("config/mailBodies.json")) {
             //Read JSON file
-            JSONObject jsonObject = (JSONObject) jsonParser.parse(reader);
-            JSONArray mailBodies = (JSONArray) jsonObject.get("mailBody");
+            JSONArray mailBodies = (JSONArray) jsonParser.parse(reader);
 
             Random random = new Random();
             int rndIndex = random.nextInt(mailBodies.size());
-            result[0] = ((JSONObject) mailBodies.get(rndIndex)).get("subject").toString();
-            result[1] = ((JSONObject) mailBodies.get(rndIndex)).get("body").toString();
+            // JSON file format is not fitted for direct data query, but fits
+            // the JSONExtractor class query architecture.
+            result[0] = ((JSONObject) ((JSONObject) mailBodies.get(rndIndex)).get("mailBody")).get("subject").toString();
+            result[1] = ((JSONObject) ((JSONObject) mailBodies.get(rndIndex)).get("mailBody")).get("body").toString();
 
         } catch (IOException | ParseException | RuntimeException e) {
             e.printStackTrace();
-            throw new RuntimeException("config/mailBodies.json files not found or invalid");
+            throw new RuntimeException("mailBodies.json files not found or invalid");
         }
         return result;
     }
