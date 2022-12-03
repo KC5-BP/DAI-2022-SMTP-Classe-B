@@ -4,8 +4,10 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
 import java.nio.charset.Charset;
+import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Random;
+import java.util.Scanner;
 
 
 public class App {
@@ -46,34 +48,44 @@ public class App {
             return;
         }
 
-        /* Generate random group */
-        System.out.print("Create group of ");
-        int groupSize;
-        do {
-            groupSize = randomIndex.nextInt(MAILS.length);
-        } while (groupSize < Group.GROUP_SIZE_MIN);
-        System.out.println(groupSize + " victims\n");
+        /* Generate random groups */
+        System.out.print("Enter the number of groups to form : ");
+        Scanner s = new Scanner(System.in);
+        int numberOfGroups = s.nextInt();
+        ArrayList<Group> groupList = new ArrayList<>();
 
-        Group group;
-        try {
-            group = new Group(groupSize, MAILS);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return;
+        for (int i = 0; i < numberOfGroups; i++) {
+            System.out.print("Created group of ");
+            int groupSize;
+            do {
+                groupSize = randomIndex.nextInt(MAILS.length);
+            } while (groupSize < Group.GROUP_SIZE_MIN);
+            System.out.println(groupSize + " victims\n");
+
+            Group group;
+            try {
+                group = new Group(groupSize, MAILS);
+            } catch (Exception e) {
+                e.printStackTrace();
+                return;
+            }
+            groupList.add(group);
         }
 
         try {
-            System.out.println("Creating & Starting connection to mock server...");
-            createConnectServer();
+            for (Group group : groupList) {
+                System.out.println("Creating & Starting connection to mock server...");
+                createConnectServer();
 
-            /* Send msg corresponding to SMTP format */
-            sendMail(group);
+                /* Send msg corresponding to SMTP format */
+                sendMail(group);
 
-            /* Closing connection to server properly */
-            try {
-                SERVER.close();
-            } catch (Exception e) {
-                e.printStackTrace();
+                /* Closing connection to server properly */
+                try {
+                    SERVER.close();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();
