@@ -162,4 +162,15 @@ This is how the application is split:
 ![class_diagram](figures/classDiagram.png)
 
 [class diagram figure](figures/classDiagram.png)
-C
+
+The application works as followed:
+
+1. The application reads the configuration files
+    * [Server's config](lab4/src/config/configServer.json)
+    * [Mailing list](lab4/src/config/mailList.json)
+    * [Mails bodies](lab4/src/config/mailBodies.json)
+2. The user is asked to enter the number of groups of victims that will receive the same e-mail
+3. Groups are generated randomly from the mailing list (read in 1.)
+4. A socket is created and connected to the mock server (IP + port read in 1.)
+5. For each group, the application sends a random mail from the list of mails bodies (read in 1.) to the group
+6. The application closes the socket and ends
