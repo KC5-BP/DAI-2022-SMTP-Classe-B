@@ -110,13 +110,13 @@ mvn clean install
 
 #### Configuration files
 
-The configuration files are located in the [config/](lab4/src/config/) folder.
+The configuration files are located in the [config/](config/) folder.
 
 They are in a JSON format and are used to configure multiple options for the client application.
 
 ##### Server's
 
-[config/](lab4/src/config/configServer.json) contains the configuration for the server, like:
+[config/](configServer.json) contains the configuration for the server, like:
 
 ```json
 {
@@ -129,7 +129,7 @@ They are in a JSON format and are used to configure multiple options for the cli
 }
 ```
 
-[config/](lab4/src/config/mailBodies.json) contains the Subject and Bodies of a mail:
+[config/](config/mailBodies.json) contains the Subject and Bodies of a mail:
 
 ```json
 {
@@ -142,7 +142,7 @@ They are in a JSON format and are used to configure multiple options for the cli
 
 The client choose randomly one of the mail content (both subject and body) in the list, during execution.
 
-[config/](lab4/src/config/mailList.json) contains the mailing list. 
+[config/](config/mailList.json) contains the mailing list. 
 The sender and recipients are chosen randomly from the list.
 
 The format is as followed:
@@ -165,12 +165,12 @@ This is how the application is split:
 
 The application works as followed:
 
-1. The application reads the configuration files
-    * [Server's config](lab4/src/config/configServer.json)
-    * [Mailing list](lab4/src/config/mailList.json)
-    * [Mails bodies](lab4/src/config/mailBodies.json)
+1. The application reads the configuration files using the JSONExtractor class
+    * [Server's config](config/configServer.json)
+    * [Mailing list](config/mailList.json)
+    * [Mails bodies](config/mailBodies.json)
 2. The user is asked to enter the number of groups of victims that will receive the same e-mail
-3. Groups are generated randomly from the mailing list (read in 1.)
-4. A socket is created and connected to the mock server (IP + port read in 1.)
+3. Groups are generated randomly from the mailing list (read in 1.) and using the Group class
+4. A socket is created and connected to the mock server (IP + port read in 1.) though a wrapper class (ServerWrapper)
 5. For each group, the application sends a random mail from the list of mails bodies (read in 1.) to the group
-6. The application closes the socket and ends
+6. The application closes the server's socket and ends
