@@ -10,9 +10,9 @@ import java.util.Random;
 
 public class App {
     /* Config. files + Global(s): */
-    private static final String SERVER_CFG_FILE = "./lab4/src/config/configServer.json";
-    private static final String MSG_BODIES_FILE = "./lab4/src/config/mailBodies.json";
-    private static final String MAILING_LIST_FILE = "./lab4/src/config/mailList.json";
+    private static final String SERVER_CFG_FILE = "config/configServer.json";
+    private static final String MSG_BODIES_FILE = "config/mailBodies.json";
+    private static final String MAILING_LIST_FILE = "config/mailList.json";
 
     /* Contents of the previous config. files: */
     private static int SMTP_PORT;
