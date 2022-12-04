@@ -165,12 +165,46 @@ This is how the application is split:
 
 The application works as followed:
 
-1. The application reads the configuration files using the JSONExtractor class
+1. The application reads the configuration files using the JSONExtractor class.
     * [Server's config](config/configServer.json)
     * [Mailing list](config/mailList.json)
     * [Mails bodies](config/mailBodies.json)
-2. The user is asked to enter the number of groups of victims that will receive the same e-mail
-3. Groups are generated randomly from the mailing list (read in 1.) and using the Group class
-4. A socket is created and connected to the mock server (IP + port read in 1.) though a wrapper class (ServerWrapper)
-5. For each group, the application sends a random mail from the list of mails bodies (read in 1.) to the group
-6. The application closes the server's socket and ends
+2. The user is asked to enter the number of groups of victims that will receive the same e-mail.
+3. Groups are generated randomly from the mailing list (read in 1.) and using the Group class.
+4. A socket is created and connected to the mock server (IP + port read in 1.) though a wrapper class (ServerWrapper).
+5. For each group, the application sends a random mail from the list of mails bodies (read in 1.) to the group.
+6. The application closes the server's socket and ends.
+
+### Typical SMTP message
+
+A typical SMTP message the MockMock server would receive is as follows:
+
+``` text
+Received: from Dump ([172.17.0.1])
+by f603b75c751c
+with SMTP (MockMock SMTP Server version 1.4) id LB9TPJ74;
+Sun, 04 Dec 2022 20:35:47 +0000 (UTC)
+From: zreichel@moore.com
+To: reinger.oswald@emmerich.com, brody.littel@dare.com, miles61@lang.net, laney.aufderhar@gmail.com, andreane58@hickle.info, hamill.brycen@lynch.biz, groberts@hotmail.com, cgraham@hotmail.com, keeling.geo@torp.biz, kunde.agustin@schmitt.info, krajcik.henry@hotmail.com, mcarter@langworth.info, domingo72@hotmail.com, deron37@yahoo.com, marquardt.felix@gmail.com, npfannerstill@hotmail.com, jacey65@macejkovic.org, mwolf@breitenberg.com, dorian.morar@gmail.com, kkunde@rodriguez.com, bbarrows@hotmail.com, chadd42@gmail.com, dominique.wolff@yahoo.com, ireichert@aufderhar.com, mccullough.verda@lockman.com, emerald67@beahan.com, hills.flavie@cartwright.biz, howell.emard@gmail.com, arvilla.jacobson@hotmail.com, chauncey05@maggio.net, mikel.wolff@hotmail.com, fgaylord@yahoo.com, jbraun@vonrueden.com, mertz.sigurd@hotmail.com, abatz@mayer.com, vada.jones@stamm.com, lschowalter@yahoo.com, danielle18@steuber.info, daugherty.tianna@herman.biz, lrunolfsson@graham.net, jaqueline.jacobs@hotmail.com, imitchell@hotmail.com, sbeer@kirlin.com, bobby.hermann@gmail.com, koch.joshuah@kozey.net, elangosh@yahoo.com, pierce.bernier@hotmail.com, addie10@kutch.com, nmiller@wiza.com, goldner.jordon@yahoo.com, kyundt@mitchell.biz, jewell47@yahoo.com, carmen.hessel@hotmail.com, kraig86@gmail.com, torphy.letha@gmail.com, jose.weissnat@gmail.com, sibyl.welch@schultz.info, vallie31@gmail.com, moen.carolyn@hotmail.com, dorothy00@hotmail.com
+Content-Type: text/plain; charset=UTF-8
+Subject: =?UTF-8?B?UmF2aW9saSwgcmF2aW9saSAoZXQgZGVzIGNhcmFjdMOocmVzIHNww6ljaWF1eCk=?=
+
+What's in the pocketoli,
+ça marche aussi
+sur plusieures lignes!
+$è¨$äüö
+```
+
+The mail body from this example being extracted from the JSON object below:
+
+```json
+{
+    "mailBody": {
+        "subject": "Ravioli, ravioli (et des caractères spéciaux)",
+        "body": "What's in the pocketoli,
+        ça marche aussi
+        sur plusieures lignes!
+        $è¨$äüö"
+    }
+}
+```
