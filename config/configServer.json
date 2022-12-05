@@ -1,6 +1,14 @@
 [
     {
         "config": {
+            "ip": "smtp.heig-vd.ch",
+            "encoding": "UTF-8",
+            "portSMTP": 25,
+            "portHTTP": 8080
+	}
+    },
+    {
+        "config": {
             "ip": "localhost",
             "encoding": "UTF-8",
             "portSMTP": 2525,
