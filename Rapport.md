@@ -175,7 +175,37 @@ The application works as followed:
 5. For each group, the application sends a random mail from the list of mails bodies (read in 1.) to the group.
 6. The application closes the server's socket and ends.
 
-### Typical SMTP message
+### Typical SMTP exchange
+
+##### Dialog
+
+The dialog for sending an SMTP message has to be like :
+
+```text
+Creating & Starting connection to mock server...
+S: 220 af973c4743ed ESMTP MockMock SMTP Server version 1.4
+-------------------------------------
+C: HELO <company name>
+S: 250 af973c4743ed
+C: MAIL FROM:<sender>
+S: 250 Ok
+C: RCPT TO:<recepients>
+S: 250 Ok
+S: 250 Ok
+C: DATA
+<data>
+<CRLF>.<CRLF>
+S: 250 Ok
+C: QUIT
+S: 250 Ok
+```
+
+- **company name** : client or company address
+- **sender** : e-mail address of the person sending the mail
+- **recepients** : e-mail addresses of the recipients
+- **data** : mail body
+
+##### Message
 
 A typical SMTP message the MockMock server would receive is as follows:
 
